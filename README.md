@@ -19,5 +19,6 @@ Il codice restituisce i seguenti output:
 - selected_emissions2D_**.txt   ->   file con la matrice delle emissioni selezionate. In verticale sono riportati i valori di latitudine ed in orizzontale quelli di longitudine. Per ogni coppia sono riportati i valori delle emissioni selezionate. I valori di emissione al di fuori della zona selezionata sono uguali a 0.
 
  - total_emission_ch4_**.txt   ->   è riportato il valore totale delle emissioni in kg/s calcolato sulla zona selezionata.
+
 Nel nome di ogni file sono riportati il raggio e gli angoli selezionati su cui è stata effettuata la selezione.
 
