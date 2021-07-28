@@ -12,7 +12,7 @@ import matplotlib.colors as colors
 from matplotlib.path import Path
 import numpy as np
 import cartopy.crs as ccrs
-
+import cartopy.feature as cfeature
 
 ###############################################################################
 ###                         Conversion functions                            ###
@@ -264,9 +264,10 @@ for j in range(0, nbin):
              if mask[i][j]:
                   ax.plot(used_lon[j][i], used_lat[j][i], transform=data_transf, marker='o', color='m', markersize=1)
 
-ax.coastlines()
-# ax.set_yticks([lat3, lat_CMN, lat1], crs=ccrs.PlateCarree())
-# ax.set_xticks([lon4, lon_CMN, lon2], crs=ccrs.PlateCarree())
+# Add coastlines and rivers
+ax.add_feature(cfeature.COASTLINE)
+ax.add_feature(cfeature.RIVERS)
+
 gl = ax.gridlines(draw_labels=True, x_inline=False, y_inline=False)
 gl.top_labels = False
 gl.right_labels = False
