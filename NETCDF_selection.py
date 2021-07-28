@@ -10,8 +10,9 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from matplotlib.path import Path
-from mpl_toolkits.basemap import Basemap
 import numpy as np
+import cartopy.crs as ccrs
+
 
 ###############################################################################
 ###                         Conversion functions                            ###
@@ -48,12 +49,13 @@ def from_to(start_lat, start_lon, distance, bearing):
 ################ USER PARAMETERS ################
 file_path = './v6.0_CH4_2018_TOTALS.0.1x0.1/'
 file_name = 'v6.0_CH4_2018_TOTALS.0.1x0.1.nc'
-WD_1 = 0 # Deg direction of the first line
+WD_1 = 350 # Deg direction of the first line
 WD_2 = 75 # Deg direction of the second line
 r = 150 # [km] maximum distance from CMN
 
 lat_CMN = 44.19433 # coordinates of the station
 lon_CMN = 10.70111
+lon_bolo, lat_bolo = 11.3435, 44.4947  # Bologna
 #################################################
 #################################################
 
@@ -221,63 +223,53 @@ outfile_emi.close()
 ###                               PLOT                                      ###
 ###############################################################################
 
-# Get some parameters for the Stereographic Projection
-lon_0 = lon_CMN
-lat_0 = lat_CMN
 
-m = Basemap(width= 4*r*1000,height=4*r*1000,
-            resolution='l',projection='stere',\
-            lat_ts=40,lat_0=lat_0,lon_0=lon_0)
-
+########################################################
+###                    cartopy                       ###
+########################################################
 dlat = 0.5 + abs((max(lat1,lat3)-lat_CMN))
 dlon =   1 + abs((max(lon2,lon4)-lon_CMN))
-
 latinf, loninf = lat_to_index(lat_CMN-dlat, lon_CMN-dlon)
 latsup, lonsup = lat_to_index(lat_CMN+dlat, lon_CMN+dlon)
-
 ### Plot selected region ###
 lats = data['lat'][latinf:latsup]
 lons = data['lon'][loninf:lonsup]
 emis = data['emi_ch4'][latinf:latsup, loninf:lonsup] 
-lon, lat = np.meshgrid(lons, lats)
-xi, yi = m(lon, lat)
-cs = m.pcolor(xi,yi,np.squeeze(emis), cmap = 'viridis', norm=colors.LogNorm())
 
-# Add Grid Lines
-m.drawparallels(np.arange(-80., 81., 10.), labels=[1,0,0,0], fontsize=10)
-m.drawmeridians(np.arange(-180., 181., 10.), labels=[0,0,0,1], fontsize=10)
 
-# Add Coastlines, States, and Country Boundaries
-m.drawcoastlines()
-m.drawstates()
-m.drawcountries()
-m.drawrivers()  
+# set up a map
+ax = plt.axes(projection=ccrs.Stereographic(central_latitude=lat_CMN, central_longitude=lon_CMN))
+
+# define the coordinate system that the grid lons and grid lats are on
+data_transf = ccrs.PlateCarree()
+plt.pcolormesh(lons, lats, emis, transform=data_transf, norm=colors.LogNorm())
 
 # Add Colorbar
-cbar = m.colorbar(cs, location='bottom', pad="10%")
-cbar.set_label('[kg m$^-2$ s$^-1$]')
+plt.colorbar()
 
 # Add Title
 plt.title('CH$_4$ emission [kg m$^{-2}$ s$^{-1}$]')
 
-# Add lines
-x_line1, y_line1 = m(line1_lons, line1_lats)
-x_line2, y_line2 = m(line2_lons, line2_lats)
-x_line3, y_line3 = m(line3_lons, line3_lats)
-
-m.plot(x_line1, y_line1,marker=None,color='m', lw=.5)
-m.plot(x_line2, y_line2,marker=None,color='m', lw=.5)
-m.plot(x_line3, y_line3,marker=None,color='m', lw=.5)
-
 # Add cities
-x_CMN, y_CMN = m(lon_CMN, lat_CMN)
-m.plot(x_CMN, y_CMN, marker='^',color='red', label='Mt. Cimone', markersize=2)
-x_bolo, y_bolo = m(11.3435, 44.4947)
-m.plot(x_bolo, y_bolo, marker='x',color='orange', label='Bologna', markersize=3)
+ax.plot(lon_CMN, lat_CMN,transform=data_transf, marker='^',color='red', label='Mt. Cimone', markersize=5)
+ax.plot(lon_bolo, lat_bolo,transform=data_transf, marker='x',color='orange', label='Mt. Cimone', markersize=5)
 
-for i in range(0,nbin):
-    x_used, y_used = m(used_lon[i], used_lat[i])
-    m.plot(x_used, y_used, 'o', color='m', markersize=.5)
-    
+# Add lines
+ax.plot(line1_lons, line1_lats, transform=data_transf,color='m', lw = .5)
+ax.plot(line2_lons, line2_lats, transform=data_transf,color='m', lw = .5)
+ax.plot(line3_lons, line3_lats, transform=data_transf,color='m', lw = .5)
+
+for j in range(0, nbin): 
+       for i in range(1, nbin-1):      
+             if mask[i][j]:
+                  ax.plot(used_lon[j][i], used_lat[j][i], transform=data_transf, marker='o', color='m', markersize=1)
+
+ax.coastlines()
+# ax.set_yticks([lat3, lat_CMN, lat1], crs=ccrs.PlateCarree())
+# ax.set_xticks([lon4, lon_CMN, lon2], crs=ccrs.PlateCarree())
+gl = ax.gridlines(draw_labels=True, x_inline=False, y_inline=False)
+gl.top_labels = False
+gl.right_labels = False
+
 plt.savefig('CH4_emission_R' + str(r) + '_WD' + str(WD_1) + '-' + str(WD_2) + '.pdf', format='pdf')
 plt.show()
