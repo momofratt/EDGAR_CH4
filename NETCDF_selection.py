@@ -205,16 +205,16 @@ outfile2D.close()
 ###############################################################################
 tot_emi_ch4 = 0
 earth_rad2 = pow(earth_rad*1000,2) # square earth radius [m^2]
-d_lat_rad = d_lat *math.pi/180
+d_lat_rad = d_lat *math.pi/180 # convert grid point separation lat and lon to radiants
 d_lon_rad = d_lon *math.pi/180
 pi = math.pi
 
 for j in range(0, nbin):    # loop over latitudes to evaluate total emission
     temp_lat, _ = index_to_lat(j_CMN-nbin_2 + j , _ ) # get latitude of jth iteration
-    bin_surf = earth_rad2 * d_lat_rad * math.sin( 0.5*pi - abs(temp_lat) *pi/180) * d_lon_rad # [m^2] evaluate bin surface = r*Dtheta * r*sin(theta)*Dphi
+    bin_surf = earth_rad2 * d_lat_rad * math.sin( 0.5*pi - abs(temp_lat) *pi/180) * d_lon_rad # [m^2] evaluate the surface of the grid point. dS = r*Dtheta * r*sin(theta)*Dphi
     for i in range(1, nbin-1):      # loop over longitudes
-        tot_emi_ch4 = tot_emi_ch4 + sel_data[j][i]*bin_surf
-        
+        tot_emi_ch4 = tot_emi_ch4 + sel_data[j][i]*bin_surf  # add the grid point emission to total emission
+
 outfile_emi = open('total_emission_ch4_R' + str(r) + '_WD' + str(WD_1) + '-' + str(WD_2) + '.txt', 'w')
 outfile_emi.write("total CH4 emission = " + str(tot_emi_ch4) + " [kg/s]")
 outfile_emi.close()
