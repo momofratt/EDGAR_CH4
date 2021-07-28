@@ -22,7 +22,7 @@ Il codice restituisce i seguenti output:
 
 Nel nome di ogni file sono riportati il raggio e gli angoli selezionati su cui è stata effettuata la selezione.
 
-**Funzionamento programma:
+**Funzionamento programma**:
 
 I dati NETCDF vengono letti.
 
