@@ -49,8 +49,8 @@ def from_to(start_lat, start_lon, distance, bearing):
 ################ USER PARAMETERS ################
 file_path = './v6.0_CH4_2018_TOTALS.0.1x0.1/'
 file_name = 'v6.0_CH4_2018_TOTALS.0.1x0.1.nc'
-WD_1 = 350 # Deg direction of the first line
-WD_2 = 75 # Deg direction of the second line
+WD_1 = 310 # Deg direction of the first line
+WD_2 = 80 # Deg direction of the second line
 r = 150 # [km] maximum distance from CMN
 
 lat_CMN = 44.19433 # coordinates of the station
